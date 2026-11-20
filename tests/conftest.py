@@ -1,50 +1,52 @@
+"""架构测试共用的夹具：仓库根、三个成员、读 TOML。"""
 
-"""pytest全局夹具：项目仓库只读信息，所有layout测试共用"""
-from pathlib import Path
+from __future__ import annotations
+
 import tomllib
-from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
 
-# 定义一个数据类，用来描述一个本地包的信息
-@dataclass(frozen=True)  # frozen=True：只读，测试里不能意外修改
-class PackageInfo:
-    dir: Path        # 包所在文件夹路径，packages/core
-    dist_name: str   # uv发行包名，drisk-core
-    import_name: str # import名字，diabetes_risk
-
-# pytest全局fixture，名字叫repo，所有测试函数可以直接接收这个参数
 import pytest
-@pytest.fixture(scope="session")  # session级别：整个测试会话只加载一次，性能更好
-def repo():
-    # 获取仓库根目录，conftest.py放在项目根目录
-    root = Path(__file__).parent
-    # 登记我们三个包：core、training、api
-    packages = [
-        PackageInfo(
-            dir=root / "packages" / "core",
-            dist_name="drisk-core",
-            import_name="diabetes_risk"
-        ),
-        PackageInfo(
-            dir=root / "packages" / "training",
-            dist_name="drisk-training",
-            import_name="drisk_training"
-        ),
-        PackageInfo(
-            dir=root / "services" / "api",
-            dist_name="drisk-api",
-            import_name="drisk_api"
-        ),
-    ]
 
-    # 工具函数：读取某个包下pyproject.toml
-    def read_toml(pkg_dir: Path):
-        toml_path = pkg_dir / "pyproject.toml"
-        with toml_path.open("rb") as f:
-            return tomllib.load(f)
+# conftest.py 在 tests/architecture/，往上两级就是仓库根。和 ci.py 一样用文件位置定位，不看当前目录
+ROOT = Path(__file__).resolve().parents[2]
 
-    # 打包成只读对象返回给测试
-    class Repo:
-        root = root
-        packages = packages
-        read_toml = read_toml
+
+class Repo:
+    """对仓库的只读视图。测试通过它读配置，不直接拼路径。"""
+
+    root = ROOT
+    # 三个工作区成员：(目录, 发行名, 导入名)
+    members: tuple[tuple[str, str, str], ...] = (
+        ("packages/core", "drisk-core", "diabetes_risk"),
+        ("packages/training", "drisk-training", "drisk_training"),
+        ("services/api", "drisk-api", "drisk_api"),
+    )
+
+    # 按相对仓库根的路径读一个 TOML 文件，返回字典。tomllib 是 Python 3.11 起自带的 TOML 解析器（只读）
+    def toml(self, relpath: str) -> dict[str, Any]:
+        return tomllib.loads((self.root / relpath).read_text(encoding="utf-8"))
+
+    def dependency_names(self, relpath: str) -> set[str]:
+        """一个 pyproject 的 [project].dependencies 里的发行名（去掉版本约束与 extra）。"""
+        names = set()
+        for dep in self.toml(relpath)["project"].get("dependencies", []):
+            # 依赖可能写成 "pydantic>=2.6"、"uvicorn[standard]"、"x; python_version<'3.13'"：
+            # 先去掉分号后面的环境标记、方括号里的 extra，再在第一个比较符号或空格处截断，剩下的就是发行名
+            name = dep.split(";")[0].split("[")[0]
+            for sep in ("<", ">", "=", "!", "~", " "):
+                name = name.split(sep)[0]
+            # 发行名不区分大小写，统一成小写再比较
+            names.add(name.strip().lower())
+        return names
+
+    def python_files(self) -> list[Path]:
+        """仓库里自己写的全部 .py（不含虚拟环境、缓存和数据目录）。"""
+        skip = {".venv", ".git", "data", "runs", "mlruns", "node_modules", "__pycache__"}
+        return [p for p in self.root.rglob("*.py") if not skip & set(p.relative_to(self.root).parts)]
+
+
+# scope="session"：整个测试会话只建一个 Repo。它只读不写，各个测试共用没有风险。
+@pytest.fixture(scope="session")
+def repo() -> Repo:
     return Repo()
