@@ -1,12 +1,17 @@
+# import-linter global config
+# Keep this file ASCII-only: import-linter reads it with the system locale encoding,
+# which is GBK (cp936) on Chinese Windows and cannot decode UTF-8 Chinese text.
 [importlinter]
+# root_packages: top-level packages to scan
 root_packages =
     diabetes_risk
     drisk_training
     drisk_api
 
-# -- Contract 1: Core package must be independent --
-[importlinter:contract:core-independence]
-name = Core independence: diabetes_risk cannot depend on training or api
+# Contract 1, id: core-independent
+[importlinter:contract:core-independent]
+name = Core package does not depend on training or api
+# type forbidden: source_modules must not import forbidden_modules
 type = forbidden
 source_modules =
     diabetes_risk
@@ -14,20 +19,12 @@ forbidden_modules =
     drisk_training
     drisk_api
 
-# -- Contract 2: Training package cannot depend on api --
-[importlinter:contract:training-boundary]
-name = Training boundary: drisk_training cannot depend on api
-type = forbidden
-source_modules =
+# Contract 2, id: training-api-independent
+[importlinter:contract:training-api-independent]
+name = Training and api packages are independent
+# type independence: the listed modules cannot import each other in any direction,
+# equivalent to both forbidden directions and does not relax any constraint
+type = independence
+modules =
     drisk_training
-forbidden_modules =
     drisk_api
-
-# -- Contract 3: API package cannot depend on training --
-[importlinter:contract:api-boundary]
-name = API boundary: drisk_api cannot depend on training
-type = forbidden
-source_modules =
-    drisk_api
-forbidden_modules =
-    drisk_training
