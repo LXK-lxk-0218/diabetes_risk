@@ -1,6 +1,9 @@
 # 数据：原始库与冻结数据只放本机，不进  Git
 data/
 
+# 训练产物：模型文件等只放本机，不进 Git
+artifacts/
+
 # 环境与缓存
 .venv/
 __pycache__/
