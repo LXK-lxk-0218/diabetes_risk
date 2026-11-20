@@ -1,0 +1,29 @@
+[project]
+# 包安装名称： uv 、 pip 安装时用这个名字  drisk-training
+name = "drisk-training"
+# 版本号，和 core 包保持一致，方便统一管理版本
+version = "0.1.0"
+# 包描述，说明这个包的职责
+description = "训练包：数据、评估、追踪、流水线、命令行"
+# Python 版本约束，整个项目统一使用 3.12 及以上
+requires-python = ">=3.12"
+# 依赖声明：训练包依赖底层公共核心包  drisk-core
+dependencies = ["drisk-core"]
+
+# ========== 构建系统配置：告诉 uv 如何打包这个包  ==========
+[build-system]
+# 打包工具依赖： uv_build ，版本大于等于 0.8 ，小于 1
+requires = ["uv_build>=0.8,<1"]
+# 指定打包后端为 uv_build ，和 core 保持一致
+build-backend = "uv_build"
+
+# ========== uv 打包后端配置：定义代码里 import 的模块名  ==========
+[tool.uv.build-backend]
+# 代码中import 导入的名字： import drisk_training
+# 区分：安装名叫  drisk-training ，代码导入名叫  drisk_training
+module-name = "drisk_training"
+
+# ========== 依赖来源声明： drisk-core 是本地工作区源码包，不从网上下载  ==========
+[tool.uv.sources]
+# 标记drisk-core 来自当前 uv 工作区，读取本地源码，实时生效，不用反复重装
+drisk-core = { workspace = true }

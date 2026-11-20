@@ -1,0 +1,30 @@
+# ========== 项目基础信息块：定义 API 推理服务包  ==========
+[project]
+# 包安装名称： pip/uv 安装时使用  drisk-api
+name = "drisk-api"
+# 版本号，和 core 、 training 统一版本，方便管理
+version = "0.1.0"
+# 包功能描述，说明这个包的定位
+description = "服务包：FastAPI 推理服务"
+# Python 版本约束，整个项目统一要求 3.12 及以上
+requires-python = ">=3.12"
+# 依赖声明：推理服务依赖 core 公共包，里面有数据模型、工具函数
+dependencies = ["drisk-core"]
+
+# ========== 构建系统：告诉 uv 如何打包这个服务包  ==========
+[build-system]
+# 打包工具： uv_build ，版本范围 0.8 及以上，小于 1.0
+requires = ["uv_build>=0.8,<1"]
+# 指定打包后端为 uv_build ，和 core 、 training 保持一致
+build-backend = "uv_build"
+
+# ========== uv 打包后端配置：定义代码 import 名字  ==========
+[tool.uv.build-backend]
+# 代码里导入模块名字： import drisk_api
+# 区分：安装名  drisk-api （横杠），导入名  drisk_api （下划线）， Python 模块不能用横杠
+module-name = "drisk_api"
+
+# ========== 依赖来源声明： drisk-core 是本地源码包，不从 pypi 下载  ==========
+[tool.uv.sources]
+# 标记drisk-core 来自当前 uv 工作区，读取本地源码，修改 core 代码服务直接生效
+drisk-core = { workspace = true }

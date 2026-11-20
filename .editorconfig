@@ -1,0 +1,14 @@
+# root = true ：这是项目根目录的 editorconfig ，子目录不再读取别的 editorconfig
+root = true
+
+# 【*】匹配所有类型文件，全局默认规则
+[*]
+charset = utf-8                # 文件编码统一使用 utf-8 ，防止中文乱码
+end_of_line = lf               # 换行符统一 LF （ Linux 标准，避免 Windows CR/LF 换行冲突）
+insert_final_newline = true    # 文件末尾自动加一个换行，很多工具规范要求
+indent_style = space           # 缩进使用空格，不用 Tab 制表符
+indent_size = 4                # 默认缩进宽度 4 个空格（ Python 代码标准）
+
+# 专门匹配  yaml 、 yml 、 json 、 toml 配置文件，单独规则
+[*.{yaml,yml,json,toml}]
+indent_size = 2                # 配置文件缩进改为 2 空格，行业通用习惯

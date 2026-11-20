@@ -1,0 +1,25 @@
+# ========== 项目基础信息块：声明这个包本身  ==========
+[project]
+# 包名：对外安装、被其他包引用时用的名字  drisk-core
+name = "drisk-core"
+# 版本号，后续迭代升级版本
+version = "0.1.0"
+# 包功能描述，告诉别人这个包是干嘛的
+description = "核心包：训练与服务共用的最小集合"
+# 约束Python 最低版本，和整个项目统一  3.12
+requires-python = ">=3.12"
+# 当前core 包的外部依赖，这里先为空，后续需要 pandas 、 numpy 等再往里加
+dependencies = []
+
+# ========== 构建系统：告诉 uv 怎么打包这个包  ==========
+[build-system]
+# 打包需要的工具： uv_build ，版本范围 0.8 以上，小于 1.0
+requires = ["uv_build>=0.8,<1"]
+# 指定打包后端：使用 uv_build 来构建
+build-backend = "uv_build"
+
+# ========== uv 构建后端配置  ==========
+[tool.uv.build-backend]
+# 源码里import 导入时用的模块名： import diabetes_risk
+# 注意区分：包名 drisk-core （ pip 安装名字），导入名字 diabetes_risk （代码里 import 名字）
+module-name = "diabetes_risk"

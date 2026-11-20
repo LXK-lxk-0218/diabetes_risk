@@ -1,0 +1,16 @@
+# 数据：原始库与冻结数据只放本机，不进  Git
+data/
+
+# 环境与缓存
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.import_linter_cache/
+.coverage
+htmlcov/
+
+# 环境参数（密钥）
+.env

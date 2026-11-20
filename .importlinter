@@ -1,0 +1,33 @@
+[importlinter]
+root_packages =
+    diabetes_risk
+    drisk_training
+    drisk_api
+
+# -- Contract 1: Core package must be independent --
+[importlinter:contract:core-independence]
+name = Core independence: diabetes_risk cannot depend on training or api
+type = forbidden
+source_modules =
+    diabetes_risk
+forbidden_modules =
+    drisk_training
+    drisk_api
+
+# -- Contract 2: Training package cannot depend on api --
+[importlinter:contract:training-boundary]
+name = Training boundary: drisk_training cannot depend on api
+type = forbidden
+source_modules =
+    drisk_training
+forbidden_modules =
+    drisk_api
+
+# -- Contract 3: API package cannot depend on training --
+[importlinter:contract:api-boundary]
+name = API boundary: drisk_api cannot depend on training
+type = forbidden
+source_modules =
+    drisk_api
+forbidden_modules =
+    drisk_training
