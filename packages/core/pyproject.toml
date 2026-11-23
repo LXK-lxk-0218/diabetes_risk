@@ -8,8 +8,10 @@ version = "0.1.0"
 description = "核心包：训练与服务共用的最小集合"
 # 约束Python 最低版本，和整个项目统一  3.12
 requires-python = ">=3.12"
-# 当前core 包的外部依赖，这里先为空，后续需要 pandas 、 numpy 等再往里加
-dependencies = []
+# core 包的外部依赖：结构化日志用 structlog（numpy 不在这里，repro 里延迟导入、装了才用）
+dependencies = [
+    "structlog>=24.1",
+]
 
 # ========== 构建系统：告诉 uv 怎么打包这个包  ==========
 [build-system]

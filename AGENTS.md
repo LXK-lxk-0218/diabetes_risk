@@ -31,3 +31,11 @@
 
 - 新增顶层目录之前，先确认它在 `docs/steps/` 的规划里。
 - 不改 `data/frozen/` 与 `data/raw/` 下的冻结数据（`tests/test_architecture.py` 守护指纹）。
+
+### A2
+
+- “同类、可替换、会增长”的组件用 `diabetes_risk.core.registry.Registry` 注册；注册名一经发布不再修改。
+- 写日志用 `diabetes_risk.observability.log.get_logger(__name__ 或模块名)`；事件名用英文“动词_名词”；日志里不写特征值和居民标识。
+- 阶段计时用 `timed()`；耗时发到哪里用 `use_emitter()` 在调用时设置，不要写进装饰器参数。
+- 指纹统一用 `diabetes_risk.core.repro`（`sha256_file`、`sha256_json`），不要另写一份。
+- 可预期的业务错误继承 `DriskError`。
