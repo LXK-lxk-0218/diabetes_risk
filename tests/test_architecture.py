@@ -197,7 +197,7 @@ def test_training_source_does_not_import_api() -> None:
 
 
 def test_no_sys_path_manipulation_in_source() -> None:
-    """禁止任何源码中使用 sys.path.insert/append 绕过正常包导入。"""
+    """禁止任何源码改写模块搜索路径、绕过正常包导入。"""
     violations: list[str] = []
     src_dirs = [
         ROOT / "packages" / "core" / "src",
@@ -210,7 +210,8 @@ def test_no_sys_path_manipulation_in_source() -> None:
             continue
         for py_file in src_dir.rglob("*.py"):
             content = py_file.read_text(encoding="utf-8")
-            if "sys.path.insert" in content or "sys.path.append" in content:
+            # 关键字拆开拼接，避免全仓扫描类测试命中本测试文件自身
+            if ("sys." + "path.insert") in content or ("sys." + "path.append") in content:
                 violations.append(str(py_file.relative_to(ROOT)))
 
     assert len(violations) == 0, f"以下文件包含 sys.path 操作（禁止）: {violations}"

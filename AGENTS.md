@@ -1,44 +1,33 @@
-# AGENTS.md — AI 禁区与架构规则
+# AGENTS.md：给编程智能体的规则
 
-## 绝对禁止的操作
+> 只写已经存在的东西。每完成一步，在第四节追加本步新增的规则；不提前写后面步骤的规则。
 
-以下规则 AI 助手（包括 Claude、Copilot 等）**绝对不能违反**，相关约束由架构测试 `tests/test_architecture.py` 自动守护：
+## 一、怎么算完成
 
-### 1. 禁止修改基线文件
-- `data/frozen/FROZEN.json` — 口径定义文件，记录了数据来源与内容指纹
-- `data/frozen/train.parquet` — 冻结训练集
-- `data/frozen/valid.parquet` — 冻结验证集
-- `data/raw/incident.db` — 原始数据库
-- 以上文件的 SHA256 指纹已写入测试，任何修改都会导致测试失败
+- 唯一标准：`uv run python scripts/ci.py` 全绿（ruff 检查、ruff 格式、mypy、import-linter、pytest + 覆盖率）。
+- 跑质量门之前，先 `uv run ruff format .` 和 `uv run ruff check --fix .`，让格式和导入顺序自动对齐。
+- 每一步至少留下一条能运行的命令，或一组能运行的测试。
 
-### 2. 禁止破坏三层依赖架构
-- `drisk_api` **不能** import `drisk_training`
-- `diabetes_risk` **不能** import `drisk_training` 或 `drisk_api`
-- `drisk_training` **不能** import `drisk_api`
-- 只允许：training → core ← api 的单向依赖
-- 契约定义在 `.importlinter` 文件中
+## 二、绝对不要做
 
-### 3. 禁止降低质量门槛
-- 代码覆盖率门槛 ≥ 85%（`pyproject.toml` 中 `fail_under = 85`）
-- 不得修改 `pyproject.toml` 中的 mypy/ruff/pytest/coverage 配置来降低标准
+1. 不降低任何门槛：覆盖率 `fail_under`、ruff 规则、mypy 选项、import-linter 契约。
+2. 不删除、不跳过、不放宽已有断言来让测试通过。
+3. 不修改 `sys.path`，不调用 `os.chdir`，不在 pytest 配置里加 `pythonpath`。
+4. 不改 `baselines/` 下的任何文件；结果对不上基线时，报告差异并停下来。
+5. 不写指向未来步骤的占位：TODO、空函数、预留字段、预留配置段。
+6. 契约文件（数据集 manifest、模型包元数据、预测记录 schema、OpenAPI）改动之前先问人。
+7. 不创建 `.github/`。
 
-### 4. 禁止破坏代码规范
-- 禁止使用 `sys.path.insert()` 或 `sys.path.append()` 来绕过包导入
-- 禁止使用 `os.chdir()` 改变工作目录
-- 所有导入必须通过标准的 `src` 布局和已安装的包
+## 三、仓库约定
 
-### 5. 禁止修改 `.importlinter` 分层契约
-- `.importlinter` 中定义的三层依赖关系不得删除或放松
+- 三个包：`packages/core`（导入名 `diabetes_risk`）、`packages/training`（`drisk_training`）、`services/api`（`drisk_api`）。
+- 依赖方向：core 不依赖另外两个；training 与 api 互不依赖。
+- 运行时依赖用 `uv add --package <发行名> <依赖>`，开发工具用 `uv add --dev <依赖>`；不要手改 `uv.lock`。
+- 测试数据在测试里现造，不依赖 `data/` 下的文件。
 
-## 项目唯一合格标准
+## 四、各步骤追加的规则
 
-```bash
-uv run python scripts/ci.py
-```
+### A1
 
-五道质量门全部通过才算合格：
-1. ruff 代码规范检查
-2. ruff 代码格式化检查
-3. mypy 类型检查
-4. import-linter 分层契约检查
-5. pytest + 覆盖率检查
+- 新增顶层目录之前，先确认它在 `docs/steps/` 的规划里。
+- 不改 `data/frozen/` 与 `data/raw/` 下的冻结数据（`tests/test_architecture.py` 守护指纹）。
