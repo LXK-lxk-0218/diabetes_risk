@@ -6,6 +6,7 @@ project:
 
 paths:
   data_dir: data             # 相对仓库根目录
+  features: configs/features.yaml   # 特征目录：字段元数据唯一来源
 
 data:
   raw_db: raw/incident.db    # 相对 paths.data_dir：学生唯一拿到的原始库

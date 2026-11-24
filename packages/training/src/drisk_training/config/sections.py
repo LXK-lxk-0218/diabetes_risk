@@ -29,6 +29,7 @@ class PathsSection(_Section):
     """路径段：所有路径都相对仓库根目录。"""
 
     data_dir: Path = Path("data")
+    features: Path = Path("configs/features.yaml")  # 特征目录（A4）
 
 
 class DataSection(_Section):

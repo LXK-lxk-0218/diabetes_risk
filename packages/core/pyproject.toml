@@ -10,6 +10,8 @@ description = "核心包：训练与服务共用的最小集合"
 requires-python = ">=3.12"
 # core 包的外部依赖：结构化日志用 structlog（numpy 不在这里，repro 里延迟导入、装了才用）
 dependencies = [
+    "pydantic>=2.6",
+    "pyyaml>=6.0",
     "structlog>=24.1",
 ]
 

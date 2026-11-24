@@ -46,3 +46,9 @@
 - 代码里不出现口径数字（窗口天数、阈值、日期）：一律从 `Settings` 读。
 - 新功能需要配置时，在 `sections.py` 新增一段（`extra="forbid"`、`frozen=True`），同时更新 `configs/base.yaml` 和测试；不为还没实现的功能预留段。
 - 实验配置用 `extends` 只写差异，不整份复制。
+
+### A4
+
+- 字段的名字、分组、范围、类别、中文名只写在 `configs/features.yaml`；代码里不再另写一份字段清单，一律从 `FeatureCatalog` 取。
+- 新增字段只改 `features.yaml`，并补测试；`forbidden` 里的列任何时候都不能当模型输入。
+- YAML 里的 `yes`、`no`、`on`、`off` 要加引号，否则会被读成布尔值。

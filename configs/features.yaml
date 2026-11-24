@@ -1,0 +1,35 @@
+# 特征目录：字段元数据的唯一来源。新增字段只改这一个文件。
+# 分组：numeric 数值（必须给 range）、binary 二元 0/1、categorical 类别（必须给 categories）。
+# 顺序就是模型输入的顺序。range 是"合理取值范围"，越界的值在数据清洗时置空。
+version: 1
+fields:
+  - {name: age,               group: numeric, range: [18, 100],  required: true, display_name: 年龄}
+  - {name: height_cm,         group: numeric, range: [120, 210], display_name: 身高（厘米）}
+  - {name: weight_kg,         group: numeric, range: [30, 200],  display_name: 体重（公斤）}
+  - {name: waist_cm,          group: numeric, range: [50, 150],  display_name: 腰围（厘米）}
+  - {name: sbp,               group: numeric, range: [60, 260],  display_name: 收缩压}
+  - {name: dbp,               group: numeric, range: [30, 150],  display_name: 舒张压}
+  - {name: exercise_min_week, group: numeric, range: [0, 3000],  display_name: 每周运动（分钟）}
+  - {name: sleep_hours,       group: numeric, range: [2, 14],    display_name: 平均睡眠（小时）}
+  - {name: veg_fruit_daily,         group: binary, display_name: 每天吃蔬果}
+  - {name: hypertension_dx,         group: binary, display_name: 诊断过高血压}
+  - {name: hyperlipidemia_dx,       group: binary, display_name: 诊断过血脂异常}
+  - {name: gdm_history,             group: binary, display_name: 妊娠糖尿病史}
+  - {name: polyuria,                group: binary, display_name: 多尿}
+  - {name: polydipsia,              group: binary, display_name: 多饮}
+  - {name: weight_loss_unexplained, group: binary, display_name: 不明原因体重下降}
+  - {name: gender,            group: categorical, categories: [M, F], required: true, display_name: 性别}
+  - {name: smoking_status,    group: categorical, categories: [never, former, current], display_name: 吸烟状态}
+  - {name: drinking_freq,     group: categorical, categories: [never, occasional, frequent], display_name: 饮酒频率}
+  - {name: family_history_dm, group: categorical, categories: ["yes", "no", "unknown"], display_name: 糖尿病家族史}  # 加引号：YAML 会把裸写的 yes/no 读成布尔值
+
+# 禁止进入模型的列：编号、日期、已确诊标记、导出当天回填的纳管标签、分组评估用的元数据、标签本身
+forbidden: [visit_id, resident_id, visit_date, created_at, known_diabetes, chronic_mgmt_tag,
+            district, education, income_level, label]
+
+# 派生字段：由特征工程计算（C-L1b），这里只登记名字与中文名
+derived:
+  - {name: bmi, display_name: BMI}
+  - {name: waist_height_ratio, display_name: 腰围身高比}
+  - {name: pulse_pressure, display_name: 脉压差}
+  - {name: symptom_count, display_name: 三多一少症状数}
