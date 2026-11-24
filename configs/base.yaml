@@ -1,0 +1,23 @@
+# 全部默认值。配置随功能生长：还没实现的功能，这里不会有它的段。
+project:
+  name: diabetes-risk
+  experiment: base
+  seed: 42
+
+paths:
+  data_dir: data             # 相对仓库根目录
+
+data:
+  raw_db: raw/incident.db    # 相对 paths.data_dir：学生唯一拿到的原始库
+  as_of: 2025-06-30          # 原始库的导出日
+
+label:
+  window_days: 90            # 随访后多少天内的化验算数
+  max_report_lag_days: 30    # 报告最晚比采样晚多少天（标签成熟缓冲）
+  fpg_pos: 7.0               # 空腹血糖阳性阈值（mmol/L）
+  hba1c_pos: 6.5             # 糖化血红蛋白阳性阈值（%）
+
+split:
+  train_end: 2024-06-30      # 训练快照日：只用这一天已经出报告的化验
+  valid_start: 2024-07-01
+  valid_end: 2024-12-31

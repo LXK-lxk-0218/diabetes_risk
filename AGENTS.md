@@ -39,3 +39,10 @@
 - 阶段计时用 `timed()`；耗时发到哪里用 `use_emitter()` 在调用时设置，不要写进装饰器参数。
 - 指纹统一用 `diabetes_risk.core.repro`（`sha256_file`、`sha256_json`），不要另写一份。
 - 可预期的业务错误继承 `DriskError`。
+
+### A3
+
+- 业务与实验参数写 `configs/*.yaml`；环境参数走 `DRISK_` 前缀的环境变量；密钥绝不进 Git。
+- 代码里不出现口径数字（窗口天数、阈值、日期）：一律从 `Settings` 读。
+- 新功能需要配置时，在 `sections.py` 新增一段（`extra="forbid"`、`frozen=True`），同时更新 `configs/base.yaml` 和测试；不为还没实现的功能预留段。
+- 实验配置用 `extends` 只写差异，不整份复制。

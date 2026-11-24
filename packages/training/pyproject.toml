@@ -8,7 +8,12 @@ description = "训练包：数据、评估、追踪、流水线、命令行"
 # Python 版本约束，整个项目统一使用 3.12 及以上
 requires-python = ">=3.12"
 # 依赖声明：训练包依赖底层公共核心包  drisk-core
-dependencies = ["drisk-core"]
+dependencies = [
+    "drisk-core",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "pyyaml>=6.0",
+]
 
 # ========== 构建系统配置：告诉 uv 如何打包这个包  ==========
 [build-system]

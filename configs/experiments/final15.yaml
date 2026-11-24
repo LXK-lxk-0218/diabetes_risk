@@ -1,0 +1,4 @@
+# 主实验：名额 15%。名额参数要等 C-L1a 有了 decision 段才写得进来。
+extends: ../base.yaml
+project:
+  experiment: final15
