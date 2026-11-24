@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -47,6 +48,17 @@ class Repo:
             # 发行包名不区分大小写，统一小写，避免 Drisk-Core 和 drisk-core 判断不相等
             names.add(name.strip().lower())
         return names
+
+    def load_script(self, name: str) -> Any:
+        """把 scripts/<name>.py 当模块载入并返回（按文件路径载入，不改导入搜索路径）。"""
+        path = self.root / "scripts" / f"{name}.py"
+        # spec_from_file_location：按文件路径建模块规格，不需要 scripts/ 在 sys.path 里
+        spec = importlib.util.spec_from_file_location(f"_script_{name}", path)
+        if spec is None or spec.loader is None:
+            raise AssertionError(f"无法载入脚本：{path}")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module
 
     def python_files(self) -> list[Path]:
         """仓库里自己写的全部 .py（不含虚拟环境、缓存和数据目录）。"""
