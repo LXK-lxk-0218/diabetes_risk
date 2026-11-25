@@ -44,6 +44,7 @@
 - 实现者自己补的测试放 `tests/unit/`：只许加，不许放宽。
 - 测试数据在测试里现造，不读 `data/` 下的文件。
 - 地基的用法（怎么做、会抛什么、谁在用）写在 `docs/api/`；签名由 `uv run python scripts/api_snapshot.py --write` 生成，不手抄。
+- 技能只写在 `.agents/skills/`（Codex、Cursor 等直接读）；`.claude/skills/` 由 `uv run python scripts/sync_agent_files.py` 生成给 Claude Code 读，不要手改。
 
 ## 六、各步追加的规则
 
@@ -75,8 +76,9 @@
 
 ### A5
 
-- 开工先查 `docs/api/`：地基里已经有的，直接用，不另写一份。
-- 新增公开函数、类：人确认以后运行 `uv run python scripts/api_snapshot.py --write` 更新 `docs/interfaces.md`，并在 `docs/api/` 补一节；已有的行要改或要删，先停下来问人。
+- 要用地基里的东西，先查 `docs/api/`（怎么用）和 `docs/interfaces.md`（签名）。需要的功能地基里没有，停下来问人：不要自己加别名、兼容层或新函数。
+- 地基的公开接口只许新增。在地基的模块里新增了公开函数或类：同一次提交里运行 `uv run python scripts/api_snapshot.py --write`，并在 `docs/api/` 补一节说明；交付时贴出快照的 diff。已有的行被改或被删，先停下来问人。
+- 说明里不抄签名，以 `docs/interfaces.md` 为准；`docs/api/` 由智能体起草、人审：每一句都要能在规格卡、验收测试或代码里找到出处。
 - `docs/api/` 的示例要能在仓库根目录直接运行，只读 `configs/`，不读 `data/`。
 
 ### 加固（2026-11-25）

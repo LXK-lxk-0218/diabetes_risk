@@ -20,3 +20,6 @@ htmlcov/
 
 # 编辑器配置
 .idea/
+
+# Claude Code 的本地权限设置（技能镜像要进 Git，本机设置不进）
+.claude/settings.local.json
