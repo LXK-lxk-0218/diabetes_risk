@@ -89,7 +89,8 @@ def test_settings_are_frozen_and_derive_train_last_visit(configs: Path) -> None:
     assert settings.train_last_visit == date(2024, 3, 2)
     assert settings.raw_db_path(Path("/repo")) == Path("/repo/data/raw/x.db")
     with pytest.raises(ValueError):
-        settings.project.seed = 1  # type: ignore[misc]
+        # frozen=True：赋值会抛 ValidationError（ValueError 的子类）
+        settings.project.seed = 1
 
 
 # 唯一一条读真实 configs/ 的测试：保证仓库里的配置文件一直能加载

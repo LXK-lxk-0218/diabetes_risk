@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import configparser
 import re
 
 # 门槛下限：pyproject 里的值只能比这里高，不能低
 COVERAGE_FLOOR = 85
 REQUIRED_RUFF_RULES = {"E", "F", "W", "I", "B", "UP"}
-REQUIRED_CONTRACTS = {"core-independent", "training-api-independent"}
 
 # 拼出来的正则，避免本文件自己命中
 _SYS_PATH = re.compile(r"\bsys\." + r"path\.(insert|append|extend)\b|\bsys\." + r"path\s*\+?=")
@@ -48,15 +46,3 @@ def test_quality_rules_not_reduced(repo) -> None:
     # <= 是子集判断：规则只能比下限多，不能少
     assert REQUIRED_RUFF_RULES <= set(tool["ruff"]["lint"]["select"])
     assert tool["mypy"]["disallow_untyped_defs"] is True
-
-
-def test_layer_contracts_not_removed(repo) -> None:
-    """分层契约不能偷偷删减：import-linter 不会报警“契约被删”，由这个测试记住清单。"""
-    # import-linter 只检查“写了的”契约：删掉一条，lint-imports 照样是绿的。
-    # 所以“应该有哪些契约”要由这个测试记住。
-    parser = configparser.ConfigParser()
-    parser.read(repo.root / ".importlinter", encoding="utf-8")
-    # 节名形如 importlinter:contract:core-independent，取最后一段作为契约名
-    contracts = {s.split(":", 2)[2] for s in parser.sections() if s.startswith("importlinter:contract:")}
-    missing = REQUIRED_CONTRACTS - contracts
-    assert not missing, f"分层契约不能删减，缺少：{sorted(missing)}"

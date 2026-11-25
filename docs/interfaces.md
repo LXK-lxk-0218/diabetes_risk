@@ -8,6 +8,7 @@
 
 - `Group = Literal['numeric', 'binary', 'categorical']`
 - `GROUPS: tuple[Group, ...] = ('numeric', 'binary', 'categorical')`
+- `REQUIRED_FORBIDDEN: tuple[str, ...] = ('visit_id', 'resident_id', 'visit_date', 'label')`
 - `class CatalogError(DriskError)`
 - `class FieldSpec(_Spec)`
   - `name: str`
@@ -16,7 +17,6 @@
   - `required: bool = False`
   - `range: tuple[float, float] | None = None`
   - `categories: tuple[str, ...] | None = None`
-  - `@model_validator(mode='after') def check_group_rules(self) -> FieldSpec`
 - `class DerivedSpec(_Spec)`
   - `name: str`
   - `display_name: str`
@@ -25,7 +25,6 @@
   - `fields: tuple[FieldSpec, ...]`
   - `forbidden: tuple[str, ...]`
   - `derived: tuple[DerivedSpec, ...] = ()`
-  - `@model_validator(mode='after') def check_consistency(self) -> CatalogSpec`
 - `class FeatureCatalog`
   - `def __init__(self, spec: CatalogSpec) -> None`
   - `@classmethod def from_dict(cls, data: dict[str, Any]) -> FeatureCatalog`
@@ -53,6 +52,7 @@
   - `def add(self, name: str, obj: T) -> T`
   - `def get(self, name: str) -> T`
   - `def names(self) -> list[str]`
+  - `def values(self) -> Iterator[T]`
 
 ## `diabetes_risk.core.repro`
 
@@ -68,7 +68,6 @@
 
 - `DEFAULT_REDACT: frozenset[str] = frozenset({'resident_id', 'visit_id', 'features', 'name', 'phone', 'id_card'})`
 - `REDACTED = '***'`
-- `Processor = Callable[[WrappedLogger, str, EventDict], EventDict]`
 - `def configure_logging(level: str='INFO', fmt: Literal['json', 'console']='console', *, redact: Iterable[str]=DEFAULT_REDACT, stream: TextIO | None=None) -> None`
 - `def get_logger(name: str) -> FilteringBoundLogger`
 - `def bind_context(**values: Any) -> None`
@@ -76,21 +75,17 @@
 
 ## `diabetes_risk.observability.timing`
 
-- `P = ParamSpec('P')`
-- `R = TypeVar('R')`
 - `class MetricsEmitter(Protocol)`
   - `def emit(self, name: str, value: float, tags: Mapping[str, str] | None=None) -> None`
 - `@contextmanager def use_emitter(emitter: MetricsEmitter | None) -> Iterator[None]`
 - `def current_emitter() -> MetricsEmitter | None`
 - `class timed`
   - `def __init__(self, stage: str) -> None`
-  - `def __call__(self, func: Callable[P, R]) -> Callable[P, R]`
+  - `def __call__(self, func: Callable[_P, _R]) -> Callable[_P, _R]`
 
 ## `drisk_training.config.catalog`
 
-- `MUST_BE_FORBIDDEN: tuple[str, ...] = ('visit_id', 'resident_id', 'visit_date', 'label')`
 - `def load_catalog(settings: Settings, root: Path) -> FeatureCatalog`
-- `def check_catalog(catalog: FeatureCatalog) -> None`
 
 ## `drisk_training.config.env`
 
@@ -101,10 +96,9 @@
 
 ## `drisk_training.config.loader`
 
-- `EXTENDS = 'extends'`
 - `class ConfigError(DriskError)`
-- `def deep_merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]`
-- `def load_raw(path: Path, _seen: tuple[Path, ...]=()) -> dict[str, Any]`
+- `def deep_merge(base: Mapping[str, Any], override: Mapping[str, Any]) -> dict[str, Any]`
+- `def load_raw(path: Path) -> dict[str, Any]`
 - `def load_settings(path: Path) -> Settings`
 - `def config_hash(settings: Settings) -> str`
 

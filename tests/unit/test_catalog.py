@@ -11,7 +11,7 @@ import yaml
 
 from diabetes_risk.core.catalog import CatalogError, FeatureCatalog
 from drisk_training.config import ConfigError, load_settings
-from drisk_training.config.catalog import check_catalog, load_catalog
+from drisk_training.config.catalog import load_catalog
 
 # 仓库根目录与仓库里的特征目录。本文件既测仓库里那份真实的目录，也测各种被故意改坏的目录
 REPO = Path(__file__).resolve().parents[2]
@@ -93,9 +93,16 @@ def test_settings_point_to_the_catalog_and_cross_check() -> None:
     assert catalog.version == 1
 
 
-# 从禁用清单里拿掉 label：目录本身仍然合法，但交叉校验必须拦下
-def test_cross_check_requires_label_and_ids_forbidden(raw: dict[str, Any]) -> None:
+# 从禁用清单里拿掉 label：目录加载时就拦下（core 的 REQUIRED_FORBIDDEN），任何入口都绕不过
+def test_missing_required_forbidden_is_rejected_at_load(raw: dict[str, Any]) -> None:
     data = copy.deepcopy(raw)
     data["forbidden"].remove("label")
-    with pytest.raises(ConfigError, match=r"缺少：\['label'\]"):
-        check_catalog(FeatureCatalog.from_dict(data))
+    with pytest.raises(CatalogError, match=r"缺少：\['label'\]"):
+        FeatureCatalog.from_dict(data)
+
+
+# 训练侧只抛 ConfigError：目录的问题也被包成“配置的问题”
+def test_load_catalog_turns_catalog_errors_into_config_errors(tmp_path: Path) -> None:
+    settings = load_settings(REPO / "configs" / "experiments" / "final15.yaml")
+    with pytest.raises(ConfigError, match="特征目录"):
+        load_catalog(settings, tmp_path)
