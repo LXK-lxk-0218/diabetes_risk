@@ -3,3 +3,7 @@
 
 # 基线文件按字节冻结（SHA256）：禁止任何换行转换，否则同一基线在 Windows 和 Linux 上指纹不同
 baselines/** -text
+
+# 二进制文件：不做换行转换和文本差异
+*.parquet binary
+*.db binary
